@@ -1,0 +1,28 @@
+folder = ...
+parser = ...
+
+...
+
+import re
+from os import listdir
+from os.path import isdir, join, basename
+
+dest = basename(folder)
+subparsers = parser.add_subparsers(dest=dest)
+subparsers.required = True
+for i in listdir(folder):
+    if isdir(join(folder, i)):
+        parser = subparsers.add_parser(i)
+        proyo.sub(i, parser=parser).parse()
+
+# ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+folder = ...
+args = ...
+dest = ...
+args = ...
+
+...
+
+subfolder = getattr(args, dest)
+proyo.sub(subfolder).run()
