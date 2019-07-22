@@ -1,16 +1,12 @@
 parser = ...
 
-...
-
 parser.add_argument('project_type', choices=['script', 'library'])
 parser.add_argument('--as-package', action='store_true')
 
-# ~~~~~~~~~
+# ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
 args = ...
 project_name = ...
-
-...
 
 import re
 
@@ -19,3 +15,8 @@ underscore_name = '_'.join(re.findall(r'\w+', project_name)).lower()
 script_name = underscore_name.replace('_', '-') * (args.project_type == 'script')
 package_name = underscore_name * args.as_package
 module_name = underscore_name * (not args.as_package)
+
+... = underscore_name
+... = script_name
+... = package_name
+... = module_name
