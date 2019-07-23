@@ -1,6 +1,6 @@
 import json
 from argparse import ArgumentParser
-from os import listdir, makedirs
+from os import listdir, makedirs, getcwd, chdir
 from os.path import join, dirname, isfile, exists, realpath
 
 from proyo.misc import root_dir, generate_alternate_help, arrange_tree, map_tree, collect_leaves
@@ -20,6 +20,7 @@ def load_macros(folder):
 def main():
     templates = join(root_dir, 'template')
     macros = load_macros(join(root_dir, 'macros'))
+    cur_dir = getcwd()
 
     parser = ArgumentParser()
 
@@ -36,20 +37,26 @@ def main():
 
     args = parser.parse_args()
 
+    chdir(cur_dir)
     out_folder = realpath(args.project_folder)
     if exists(out_folder):
         print('Destination must not exists!')
         exit(1)
 
+    proyo.set_target(out_folder)
     proyo.update_global(vars(args), args=args)
     proyo.run()
 
+    chdir(cur_dir)
     for rel, text in proyo.files.items():
         path = join(out_folder, rel)
         makedirs(dirname(path), exist_ok=True)
         fmt = 'wb' if isinstance(text, bytes) else 'w'
         with open(path, fmt) as f:
             f.write(text)
+
+    proyo.post_run_all()
+
     print('Generated to {}: {}'.format(args.project_folder, json.dumps(list(proyo.files), indent=2)))
 
 

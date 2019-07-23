@@ -6,5 +6,7 @@ import re
 from os.path import basename
 
 project_name = '-'.join(re.findall(r'\w+', basename(project_folder)))
+title_name = project_name.replace('-', ' ').title()
 
 ... = project_name
+... = title_name
