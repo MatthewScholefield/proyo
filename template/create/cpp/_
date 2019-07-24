@@ -1,0 +1,15 @@
+# ~~~
+# ~~~
+from os import chdir, mkdir
+
+args = ...
+
+if args.build_system == 'meson':
+    # !meson build
+    chdir('build')
+    # !ninja
+elif args.build_system == 'cmake':
+    mkdir('build')
+    chdir('build')
+    # !cmake ..
+    # !make
