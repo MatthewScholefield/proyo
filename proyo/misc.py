@@ -1,3 +1,5 @@
+import re
+
 from os.path import dirname, abspath, split
 
 root_dir = dirname(dirname(abspath(__file__)))
@@ -73,7 +75,7 @@ def map_tree(func, tree):
 def generate_alternate_help(proyo):
     val_label = '_'
     usages = dict(map_tree(
-        lambda x: x['parser'].format_usage().split('[-h]')[-1].strip(),
+        lambda x: re.sub(r'\s{2,}', ' ', x['parser'].format_usage().split('[-h]')[-1].strip()),
         arrange_tree(proyo.get_all_children(), val_label)
     ))
     tree_usage = '\n'.join(format_tree(usages, val_label, indent='  '))

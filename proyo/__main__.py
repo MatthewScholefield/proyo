@@ -1,7 +1,9 @@
 import json
+import shutil
 from argparse import ArgumentParser
 from os import listdir, makedirs, getcwd, chdir
 from os.path import join, dirname, isfile, exists, realpath
+from subprocess import call, check_output, CalledProcessError
 
 from proyo.misc import root_dir, generate_alternate_help, arrange_tree, map_tree, collect_leaves
 from proyo.proyo import Proyo
@@ -27,8 +29,7 @@ def main():
     proyo = Proyo(templates, dict(parser=parser), macros)
     proyo.parse()
 
-    parser_tree = map_tree(lambda p: p.get_var('parser'), arrange_tree(proyo.get_all_children()))
-    for p in collect_leaves(dict(parser_tree)):
+    for p in proyo.get_leaf_vars('parser'):
         p.add_argument('project_folder')
 
     for p in proyo.get_all_children():
@@ -55,9 +56,15 @@ def main():
         with open(path, fmt) as f:
             f.write(text)
 
+    try:
+        tree_output = '\n' + check_output(['tree', '-C', out_folder]).decode().split('\n', 1)[-1]
+    except CalledProcessError:
+        tree_output = json.dumps(list(proyo.files), indent=2)
+
     proyo.post_run_all()
 
-    print('Generated to {}: {}'.format(args.project_folder, json.dumps(list(proyo.files), indent=2)))
+    print('Generated to {}: {}'.format(args.project_folder, tree_output))
+
 
 
 if __name__ == '__main__':
