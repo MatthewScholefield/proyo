@@ -1,4 +1,5 @@
 import re
+from copy import deepcopy
 
 from os.path import dirname, abspath, split
 
@@ -72,14 +73,69 @@ def map_tree(func, tree):
             yield key, func(val)
 
 
+def extract_parts(usage):
+    """Extract individual components from a usage string"""
+    opp = {'{': '}', '[': ']', '(': ')'}
+    cur_word = []
+    tokens = []
+    stack = []
+    for c in usage:
+        if c.isspace() and not stack:
+            if cur_word:
+                tokens.append(''.join(cur_word))
+                cur_word.clear()
+        elif c in '{[(':
+            stack.append(c)
+            cur_word.append(c)
+        elif c in '}])' and stack and c == opp[stack[-1]]:
+            stack.pop()
+            cur_word.append(c)
+            if not stack and cur_word:
+                tokens.append(''.join(cur_word))
+                cur_word.clear()
+        else:
+            cur_word.append(c)
+    if cur_word:
+        tokens.append(''.join(cur_word))
+    return tokens
+
+
+def remove_redundancy(tree, val_label='_', parent_set=None):
+    my_vals = tree.pop(val_label, []) or []
+    yield val_label, [i for i in my_vals if i not in (parent_set or set())]
+    for key, child in tree.items():
+        yield key, dict(remove_redundancy(child, val_label, parent_set=set(my_vals)))
+
+
+def extract_brace_parts(usage_part):
+    m = re.match(r'{(([^,}]+,)*[^}]+)}', usage_part)
+    if not m:
+        return []
+    return m.group(1).split(',')
+
+
+def remove_redundant_usage(usage_parts_tree, val_label='_'):
+    parts = set(usage_parts_tree.pop(val_label, []))
+    yield val_label, [i for i in parts if
+                      not extract_brace_parts(i) or set(extract_brace_parts(i)) != set(usage_parts_tree)]
+    for key, val in usage_parts_tree.items():
+        yield key, dict(remove_redundant_usage(val, val_label))
+
+
 def generate_alternate_help(proyo):
     val_label = '_'
-    usages = dict(map_tree(
-        lambda x: re.sub(r'\s{2,}', ' ', x['parser'].format_usage().split('[-h]')[-1].strip()),
+    usage_parts = dict(map_tree(
+        lambda x: extract_parts(re.sub(r'\s{2,}', ' ', x['parser'].format_usage().split('[-h]')[-1].strip())),
         arrange_tree(proyo.get_all_children(), val_label)
     ))
+    usage_parts = dict(remove_redundant_usage(usage_parts))
+    leaves = [set(i) for i in collect_leaves(deepcopy(usage_parts), val_label)] or [set()]
+    common = leaves[0].intersection(*leaves[1:])
+    usages = dict(map_tree(lambda x: ' '.join([i for i in x if i not in common]), usage_parts))
     tree_usage = '\n'.join(format_tree(usages, val_label, indent='  '))
+    original_parts = extract_parts(proyo['parser'].format_usage().replace('usage: ', ''))
     return (
-            proyo['parser'].format_usage().replace('usage: ', '') +
-            ('  │\n' + tree_usage) * bool(tree_usage)
+            ' '.join(original_parts) +
+            (' '.join([''] + list(common))) * (original_parts and original_parts[-1] == '...') +
+            ('\n  │\n' + tree_usage) * bool(tree_usage)
     )
