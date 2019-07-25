@@ -1,5 +1,6 @@
 
 # ~~~
+args = ...
 project_folder = ...
 
 import re
@@ -8,5 +9,53 @@ from os.path import basename
 project_name = '-'.join(re.findall(r'\w+', basename(project_folder)))
 title_name = project_name.replace('-', ' ').title()
 
+from subprocess import check_output, CalledProcessError
+import os, datetime
+license_year = datetime.date.today().year
+try:
+    license_author = check_output(['git', 'config', 'user.name']).decode()
+except CalledProcessError:
+    license_author = os.environ.get('USER', '<COPYRIGHT HOLDER>')
+
+
+def gen_license_header(prefix, args=args, vars=locals()):
+    license_headers = {
+        'none': '',
+        'mit': '',
+        'apache': '''Copyright {license_year} {license_author}
+
+Licensed under the Apache License, Version 2.0 (the "License");
+you may not use this file except in compliance with the License.
+You may obtain a copy of the License at
+
+  http://www.apache.org/licenses/LICENSE-2.0
+
+Unless required by applicable law or agreed to in writing, software
+distributed under the License is distributed on an "AS IS" BASIS,
+WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+See the License for the specific language governing permissions and
+limitations under the License.''',
+        'gplv3': '''{title_name} - An open source project
+Copyright (C) {license_year}  {license_author}
+
+This program is free software: you can redistribute it and/or modify
+it under the terms of the GNU General Public License as published by
+the Free Software Foundation, either version 3 of the License, or
+(at your option) any later version.
+
+This program is distributed in the hope that it will be useful,
+but WITHOUT ANY WARRANTY; without even the implied warranty of
+MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+GNU General Public License for more details.
+
+You should have received a copy of the GNU General Public License
+along with this program.  If not, see <http://www.gnu.org/licenses/>.'''
+    }
+    license_header = license_headers[args.license].format(**vars, language=args.create)
+    return '\n'.join(prefix + ' ' + line for line in license_header.split('\n') * bool(license_header))
+
 ... = project_name
 ... = title_name
+... = license_year
+... = license_author
+... = gen_license_header

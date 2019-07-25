@@ -25,4 +25,4 @@ proyo = ...
 
 subfolder = getattr(args, dest)
 proyo.sub(subfolder).run()
-proyo.config(collect_files=False)
+proyo.only_collect([])

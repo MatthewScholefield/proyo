@@ -1,4 +1,7 @@
 # ~ if project_type == 'script':
+# ~ with proyo.config_as(var_regex=r'# ---(.*?)--- #'):
+# ---gen_license_header('#')--- #
+# ~
 from argparse import ArgumentParser
 
 
@@ -12,7 +15,7 @@ if __name__ == '__main__':
 # ~
 # ~ else:
 # ~ class_name = ''.join(w[0].upper() + w[1:] for w in module_name.split('_'))
-# ~ with proyo.config_context(var_regex=r'___(.*?)___'):
+# ~ with proyo.config_as(var_regex=r'___(.*?)___'):
 class ___class_name___:
     def __init__(self):
         pass

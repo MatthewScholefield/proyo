@@ -66,6 +66,5 @@ def main():
     print('Generated to {}: {}'.format(args.project_folder, tree_output))
 
 
-
 if __name__ == '__main__':
     main()

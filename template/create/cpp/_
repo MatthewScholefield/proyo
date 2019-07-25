@@ -1,4 +1,7 @@
 # ~~~
+proyo = ...
+
+proyo.config(comment='(#|//)')
 # ~~~
 from os import chdir, mkdir
 

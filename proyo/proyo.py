@@ -38,11 +38,12 @@ class Proyo:
         self._variables = variables
         self.macros = macros
         self.update()
-        self.config_val = dict(collect_files=True, var_regex=r'{{(.*?)}}')
+        self.config_val = dict(file_exports=None, var_regex=r'{{(.*?)}}', comment='#')
         self.files = {}
         self.ran_files = {}
         self.generated_files = set()
         self.subs = {}
+        self.file_exports = None
 
     def set_target(self, target):
         self.target = target
@@ -77,8 +78,10 @@ class Proyo:
         for key in missing_keys:
             print('Warning, unknown config key: "{}"'.format(key))
         self.config_val.update(params)
+        for i in self.subs.values():
+            i.config(**params)
 
-    def config_context(self, **params):
+    def config_as(self, **params):
         return ConfigContext(self, params)
 
     def get_all_children(self):
@@ -108,6 +111,9 @@ class Proyo:
                         '\n    | ' + i for i in format_exc().strip().split('\n'))))
                     print()
 
+    def only_collect(self, files):
+        self.file_exports = files
+
     def run(self, subpath=''):
         parent = join(self.root, subpath) if subpath else self.root
         files_to_generate = set()
@@ -124,19 +130,21 @@ class Proyo:
                     if filename in self.generated_files:
                         continue
                     files_to_generate.add(filename)
-        if self.config_val['collect_files']:
-            for filename in files_to_generate:
-                relative = join(subpath, basename(filename))
-                try:
-                    with open(filename) as f:
-                        self._gen_file(f.read(), relative, filename)
-                except UnicodeDecodeError:
-                    with open(filename, 'rb') as f:
-                        data = f.read()
-                    self.files[relative] = data
-                except Exception:
-                    print('Failed to generate {}: {}'.format(filename, ''.join(
-                        '\n    ' + i for i in format_exc().split('\n'))))
+        file_exports = [join(self.root, i) for i in (files_to_generate if self.file_exports is None else self.file_exports)]
+        if self.file_exports is not None and subpath:
+            file_exports = []
+        for filename in file_exports:
+            relative = join(subpath, basename(filename))
+            try:
+                with open(filename) as f:
+                    self._gen_file(f.read(), relative, filename)
+            except UnicodeDecodeError:
+                with open(filename, 'rb') as f:
+                    data = f.read()
+                self.files[relative] = data
+            except Exception:
+                print('Failed to generate {}: {}'.format(filename, ''.join(
+                    '\n    ' + i for i in format_exc().split('\n'))))
 
     def post_run_all(self):
         for filename, proyo in self.ran_files.items():
@@ -256,7 +264,7 @@ class Proyo:
                 eval_code = (
                     "_lines.append(_re.sub("
                     "   _config_val['var_regex'],"
-                    "   lambda m, _vars=locals(): eval(m.group(1), {{}}, _vars),"
+                    "   lambda m, _vars=locals(): str(eval(m.group(1), {{}}, _vars)),"
                     "   '''{}'''"
                     "))"
                 )
@@ -266,7 +274,7 @@ class Proyo:
                 in_between.clear()
 
         for line in content.split('\n'):
-            if re.match(r'\s*#\s*~(?!~)', line):
+            if re.match(r'\s*' + self.config_val['comment'] + '\s*~', line):
                 code_line = line.split('~', 1)[-1].strip()
                 flush_between()
                 if not code_line:
@@ -297,5 +305,5 @@ class Proyo:
             return
         vars = re.findall(self.config_val['var_regex'], relative)
         if all(self._variables.get(var) for var in vars) and lines:
-            relative = re.sub(self.config_val['var_regex'], lambda m: eval(m.group(1), self._variables), relative)
-            self.files[relative] = '\n'.join(lines)
+            relative = re.sub(self.config_val['var_regex'], lambda m: str(eval(m.group(1), self._variables)), relative)
+            self.files[relative] = '\n'.join(lines).strip() + '\n'
