@@ -2,8 +2,9 @@ import re
 from copy import deepcopy
 
 from os.path import dirname, abspath, split
+from pkg_resources import resource_filename, Requirement
 
-root_dir = dirname(dirname(abspath(__file__)))
+root_dir = resource_filename(Requirement.parse("proyo"), 'proyo')
 
 
 def format_tree(obj, val_label, indent=''):

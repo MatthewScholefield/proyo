@@ -1,4 +1,14 @@
+import os
+from os.path import join, dirname, abspath
 from setuptools import setup
+
+package_data = [
+    join(root, '*')
+    for folder in ['templates/', 'macros/']
+    for root, dirnames, filenames in os.walk(join(
+        dirname(abspath(__file__)), 'proyo', folder
+    ))
+]
 
 setup(
     name='proyo',
@@ -24,5 +34,7 @@ setup(
         'console_scripts': [
             'proyo=proyo.__main__:main',
         ],
-    }
+    },
+    include_package_data=True,
+    package_data={'proyo': package_data}
 )
