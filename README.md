@@ -47,6 +47,6 @@ For example, by default apps are created using the MIT license.
 
 ## Adding Templates
 
-You can add a new language by creating a new folder in `template/create`. Read
+You can add a new language by creating a new folder in `templates/create`. Read
 more about the powers of Proyo's templating system
 [in the tutorial](https://github.com/MatthewScholefield/proyo/wiki/Template-Tutorial).

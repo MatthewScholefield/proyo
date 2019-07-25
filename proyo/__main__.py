@@ -20,7 +20,7 @@ def load_macros(folder):
 
 
 def main():
-    templates = join(root_dir, 'template')
+    templates = join(root_dir, 'templates')
     macros = load_macros(join(root_dir, 'macros'))
     cur_dir = getcwd()
 
