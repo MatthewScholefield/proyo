@@ -220,7 +220,7 @@ class Proyo:
 
         spans = [(0, 0)] + sorted([i.span() for i in import_matches + export_matches]) + [(len(chunk), len(chunk))]
         chunk = ''.join(chunk[b:c] for (a, b), (c, d) in zip(spans, spans[1:]))
-        chunk = re.sub('^(.*?)#?\s*!(.*)', self._convert_bash_cmd, chunk, flags=re.MULTILINE)
+        chunk = re.sub('^\s*#\s*!(.*)', self._convert_bash_cmd, chunk, flags=re.MULTILINE)
 
         variables = {i: self._variables[i] for i in imports}
         try:
