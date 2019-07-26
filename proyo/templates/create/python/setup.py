@@ -20,7 +20,7 @@ setup(
         'Programming Language :: Python :: 3.6',
     ],
     keywords='project keywords here',
-    # ~ if as_package:
+    # ~ if is_package:
     py_modules=['{{module_name}}'],
     # ~
     # ~ else:
@@ -30,7 +30,7 @@ setup(
     # ~ if project_type == 'script':
     entry_points={
         'console_scripts': [
-            # ~ if as_package:
+            # ~ if is_package:
             '{{script_name}}={{package_name}}.__main__:main'
             # ~
             # ~ else:

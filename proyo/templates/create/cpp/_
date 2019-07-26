@@ -2,16 +2,26 @@
 proyo = ...
 
 proyo.config(comment='(#|//)')
-# ~~~
-from os import chdir, mkdir
 
 args = ...
 
-if args.build_system == 'meson':
+build_system = args.build_system
+cxx_standard = args.cxx_standard
+
+... = build_system
+... = cxx_standard
+
+# ~~~
+
+from os import chdir, mkdir
+
+build_system = ...
+
+if build_system == 'meson':
     # !meson build
     chdir('build')
     # !ninja
-elif args.build_system == 'cmake':
+elif build_system == 'cmake':
     mkdir('build')
     chdir('build')
     # !cmake ..

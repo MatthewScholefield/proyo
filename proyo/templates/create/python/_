@@ -17,16 +17,19 @@ import re
 if args.as_package and args.as_module:
     parser.error('Choose one of --as-package and --as-module')
 
+project_type = args.project_type
 underscore_name = '_'.join(re.findall(r'\w+', project_name)).lower()
 is_package = args.as_package or not args.as_module
 if not args.as_package and not args.as_module:
-    is_package = True if args.project_type == 'library' else False
+    is_package = True if project_type == 'library' else False
 
 script_name = underscore_name.replace('_', '-') * (args.project_type == 'script')
 package_name = underscore_name * is_package
 module_name = underscore_name * (not is_package)
 
+... = is_package
 ... = underscore_name
 ... = script_name
 ... = package_name
 ... = module_name
+... = project_type

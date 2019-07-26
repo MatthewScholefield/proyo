@@ -1,6 +1,5 @@
 
 proyo = ...
-
 for p in proyo.get_leaf_vars('parser'):
     p.add_argument('-b', '--build-system', choices=['cmake', 'meson'], default='cmake')
     p.add_argument('-cxx', '--cxx-standard', choices=['03', '11', '14', '17', '20'], default='14')

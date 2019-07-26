@@ -201,11 +201,11 @@ class Proyo:
         self._run_chunk('post-running', part, filename, Phase.POST_RUN)
 
     def _convert_bash_cmd(self, match):
-        command = match.group(1)
+        command = match.group(2)
         exe = command.split(' ')[0]
         command = command.replace("'", r"\'")
         command = re.sub(r'(?<!\\){(.*?)(?<!\\)}', r"''' + str(\1) + '''", command)
-        return "__import__('shutil').which('" + exe + "') and __import__('subprocess').check_call('''" + command + "''', shell=True)"
+        return match.group(1) + "__import__('shutil').which('" + exe + "') and __import__('subprocess').check_call('''" + command + "''', shell=True)"
 
     def _run_chunk(self, action, chunk, label, phase):
         import_matches = list(re.finditer(r'^\s*([a-zA-Z_][a-zA-Z_0-9]*)\s*=\s*\.\.\.\s*', chunk, re.MULTILINE))
@@ -220,7 +220,7 @@ class Proyo:
 
         spans = [(0, 0)] + sorted([i.span() for i in import_matches + export_matches]) + [(len(chunk), len(chunk))]
         chunk = ''.join(chunk[b:c] for (a, b), (c, d) in zip(spans, spans[1:]))
-        chunk = re.sub('^\s*#\s*!(.*)', self._convert_bash_cmd, chunk, flags=re.MULTILINE)
+        chunk = re.sub('^(\s*)#\s*!(.*)', self._convert_bash_cmd, chunk, flags=re.MULTILINE)
 
         variables = {i: self._variables[i] for i in imports}
         try:
@@ -299,8 +299,6 @@ class Proyo:
         variables['_lines'] = lines = []
         variables['_config_val'] = self.config_val
         variables['_re'] = re
-        if 'args' in variables:
-            variables.update(vars(variables['args']))
 
         try:
             exec('\n'.join(exec_lines), {}, variables)
