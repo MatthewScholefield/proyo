@@ -1,12 +1,11 @@
 
 # ~~~
 args = ...
-project_folder = ...
 
 import re
 from os.path import basename
 
-project_name = '-'.join(re.findall(r'\w+', basename(project_folder)))
+project_name = '-'.join(re.findall(r'\w+', basename(args.project_folder)))
 title_name = project_name.replace('-', ' ').title()
 
 from subprocess import check_output, CalledProcessError

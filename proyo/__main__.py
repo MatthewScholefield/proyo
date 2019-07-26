@@ -45,7 +45,7 @@ def main():
         exit(1)
 
     proyo.set_target(out_folder)
-    proyo.update_global(vars(args), args=args)
+    proyo.update_global(args=args)
     proyo.run()
 
     chdir(cur_dir)

@@ -294,16 +294,21 @@ class Proyo:
             print_exc()
             print('Error when generating {}: {} indents remaining at end of file'.format(relative, len(indent)))
             return
+
+        variables = dict(self._variables)
+        variables['_lines'] = lines = []
+        variables['_config_val'] = self.config_val
+        variables['_re'] = re
+        if 'args' in variables:
+            variables.update(vars(variables['args']))
+
         try:
-            self._variables['_lines'] = lines = []
-            self._variables['_config_val'] = self.config_val
-            self._variables['_re'] = re
-            exec('\n'.join(exec_lines), {}, self._variables)
+            exec('\n'.join(exec_lines), {}, variables)
         except Exception as e:
             print_exc()
             print('Error when generating {}, {}: {}'.format(relative, e.__class__.__name__, str(e)))
             return
-        vars = re.findall(self.config_val['var_regex'], relative)
-        if all(self._variables.get(var) for var in vars) and lines:
-            relative = re.sub(self.config_val['var_regex'], lambda m: str(eval(m.group(1), self._variables)), relative)
+        path_vars = re.findall(self.config_val['var_regex'], relative)
+        if all(variables.get(var) for var in path_vars) and lines:
+            relative = re.sub(self.config_val['var_regex'], lambda m: str(eval(m.group(1), variables)), relative)
             self.files[relative] = '\n'.join(lines).strip() + '\n'
