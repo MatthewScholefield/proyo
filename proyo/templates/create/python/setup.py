@@ -1,6 +1,6 @@
 # ~ with proyo.config_as(var_regex=r'# ---(.*?)--- #'):
 # ---gen_license_header('#')--- #
-# ~
+# ~ #
 from setuptools import setup
 
 setup(
@@ -22,21 +22,21 @@ setup(
     keywords='project keywords here',
     # ~ if is_package:
     py_modules=['{{module_name}}'],
-    # ~
+    # ~ #
     # ~ else:
     packages=['{{module_name}}'],
-    # ~
+    # ~ #
     install_requires=[],
     # ~ if project_type == 'script':
     entry_points={
         'console_scripts': [
             # ~ if is_package:
             '{{script_name}}={{package_name}}.__main__:main'
-            # ~
+            # ~ #
             # ~ else:
             '{{script_name}}={{module_name}}:main'
-            # ~
+            # ~ #
         ],
     }
-    # ~
+    # ~ #
 )

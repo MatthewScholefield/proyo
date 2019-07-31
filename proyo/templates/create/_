@@ -63,9 +63,5 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.'''
 
 args = ...
 
-license = args.license
-
-if license != 'none':
-    print('License: {}'.format({'mit': 'MIT', 'apache': 'Apache-2.0', 'gplv3': 'GPL-3.0-only' }[license]))
-
-... = license
+if args.license != 'none':
+    print('License: {}'.format({'mit': 'MIT', 'apache': 'Apache-2.0', 'gplv3': 'GPL-3.0-only' }[args.license]))

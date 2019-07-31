@@ -1,6 +1,6 @@
 // ~ with proyo.config_as(var_regex=r'// ---(.*?)--- //'):
 // ---gen_license_header('//')--- //
-// ~
+// ~ #
 
 #include <iostream>
 

@@ -277,7 +277,7 @@ class Proyo:
             if re.match(r'\s*' + self.config_val['comment'] + '\s*~', line):
                 code_line = line.split('~', 1)[-1].strip()
                 flush_between()
-                if not code_line:
+                if code_line == '#':
                     if not indent:
                         print_exc()
                         print('Error when generating {}: Too many unindents'.format(relative))

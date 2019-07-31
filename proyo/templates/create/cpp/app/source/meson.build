@@ -2,4 +2,4 @@
 
 executable('{{project_name}}', 'main.cpp')
 
-# ~
+# ~ #
