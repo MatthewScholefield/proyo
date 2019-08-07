@@ -118,6 +118,8 @@ class Proyo:
         parent = join(self.root, subpath) if subpath else self.root
         files_to_generate = set()
         for i in sorted(listdir(parent)):
+            if i == '__pycache__' or i.endswith('.pyc'):
+                continue
             filename = join(parent, i)
             if isdir(filename):
                 self.run(join(subpath, i))
