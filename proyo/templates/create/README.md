@@ -1,5 +1,5 @@
 # {{title_name}}
 
-*{{tagline}}*
+*{{tagline or '<tagline>'}}*
 
-{{description}}
+{{description or '<description>'}}

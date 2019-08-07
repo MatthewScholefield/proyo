@@ -6,7 +6,7 @@ from setuptools import setup
 setup(
     name='{{project_name}}',
     version='0.1.0',
-    description='{{tagline}}',
+    description='{{tagline or "<description>"}}',
     url='https://github.com/GIT_USER/{{project_name}}',
     author='{{git_author or "AUTHOR"}}',
     author_email='{{git_email or "AUTHOR_EMAIL"}}',

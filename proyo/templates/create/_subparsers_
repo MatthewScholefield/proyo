@@ -2,8 +2,8 @@ proyo = ...
 
 for p in proyo.get_leaf_vars('parser'):
     p.add_argument('-l', '--license', choices=['mit', 'apache', 'gplv3', 'none'], default='mit', type=str.lower)
-    p.add_argument('--tagline', default='<tagline>')
-    p.add_argument('--description', default='<description>')
+    p.add_argument('--tagline')
+    p.add_argument('--description')
 
 # ~~~
 
