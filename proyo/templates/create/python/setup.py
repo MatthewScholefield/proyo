@@ -6,10 +6,10 @@ from setuptools import setup
 setup(
     name='{{project_name}}',
     version='0.1.0',
-    description='Script description',
-    url='https://github.com/someuser/somerepo',
-    author='First Last',
-    author_email='email.user@provider.com',
+    description='{{tagline}}',
+    url='https://github.com/GIT_USER/{{project_name}}',
+    author='{{git_author or "AUTHOR"}}',
+    author_email='{{git_email or "AUTHOR_EMAIL"}}',
     classifiers=[
         'Development Status :: 3 - Alpha',
 
@@ -19,12 +19,12 @@ setup(
         'Programming Language :: Python :: 3.5',
         'Programming Language :: Python :: 3.6',
     ],
-    keywords='project keywords here',
+    keywords='{{project_name.replace("-", " ")}}',
     # ~ if is_package:
-    py_modules=['{{module_name}}'],
+    packages=['{{module_name}}'],
     # ~ #
     # ~ else:
-    packages=['{{module_name}}'],
+    py_modules=['{{module_name}}'],
     # ~ #
     install_requires=[],
     # ~ if project_type == 'script':

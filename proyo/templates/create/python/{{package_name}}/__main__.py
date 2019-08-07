@@ -6,7 +6,7 @@ from argparse import ArgumentParser
 
 
 def main():
-    parser = ArgumentParser()
+    parser = ArgumentParser(description='{{description or tagline or ""}}')
     args = parser.parse_args()
 
 

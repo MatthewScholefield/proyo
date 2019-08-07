@@ -10,7 +10,6 @@ args = ...
 parser = ...
 project_name = ...
 license_year = ...
-license_author = ...
 
 import re
 
@@ -33,3 +32,8 @@ module_name = underscore_name * (not is_package)
 ... = package_name
 ... = module_name
 ... = project_type
+
+# ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+# !python3 -m venv .venv/ && echo "Created virtualenv in: $(pwd)/.venv"
+# !.venv/bin/pip install -e .
