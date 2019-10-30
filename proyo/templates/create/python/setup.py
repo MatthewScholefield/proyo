@@ -21,7 +21,7 @@ setup(
     ],
     keywords='{{project_name.replace("-", " ")}}',
     # ~ if is_package:
-    packages=['{{module_name}}'],
+    packages=['{{package_name}}'],
     # ~ #
     # ~ else:
     py_modules=['{{module_name}}'],
