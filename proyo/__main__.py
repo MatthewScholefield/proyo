@@ -58,7 +58,7 @@ def main():
 
     try:
         tree_output = '\n' + check_output(['tree', '-C', out_folder]).decode().split('\n', 1)[-1]
-    except CalledProcessError:
+    except (CalledProcessError, FileNotFoundError):
         tree_output = json.dumps(list(proyo.files), indent=2)
 
     proyo.post_run_all()
