@@ -257,6 +257,10 @@ class Proyo:
         return
 
     def _gen_file(self, content, relative, filename):
+        path_vars = re.findall(self.config_val['var_regex'], relative)
+        if not all(self._variables.get(var) for var in path_vars):
+            return  # Skip generating templates with empty variable names
+
         exec_lines = []
         in_between = []
         indent = ''
@@ -308,7 +312,7 @@ class Proyo:
             print_exc()
             print('Error when generating {}, {}: {}'.format(relative, e.__class__.__name__, str(e)))
             return
-        path_vars = re.findall(self.config_val['var_regex'], relative)
-        if all(variables.get(var) for var in path_vars) and lines:
-            relative = re.sub(self.config_val['var_regex'], lambda m: str(eval(m.group(1), variables)), relative)
-            self.files[relative] = '\n'.join(lines).strip() + '\n'
+        if not any(i.strip() for i in lines) and len(lines) <= 1:
+            return
+        relative = re.sub(self.config_val['var_regex'], lambda m: str(eval(m.group(1), variables)), relative)
+        self.files[relative] = '\n'.join(lines).strip() + '\n'
