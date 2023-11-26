@@ -5,7 +5,7 @@ project({{project_name}})
 set(CMAKE_CXX_STANDARD {{cxx_standard}})
 
 add_executable(
-        musidy_app
+        {{project_name}}
         source/main.cpp
 )
 
