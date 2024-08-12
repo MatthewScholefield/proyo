@@ -1,6 +1,6 @@
 
 # ~~~
-args = ...
+from proyo.script_locals import *
 
 import re
 from os.path import basename
@@ -20,6 +20,12 @@ try:
     git_email = check_output(['git', 'config', 'user.email']).decode().strip()
 except CalledProcessError:
     git_email = None
+
+# Try using 'gh api user | jq -r '.login'' to get GitHub username
+try:
+    github_username = check_output(['gh', 'api', 'user', '--jq', '.login']).decode().strip()
+except CalledProcessError:
+    github_username = None
 
 os_user = os.environ.get('USER')
 license_author = git_author or os_user or '<COPYRIGHT HOLDER>'
@@ -73,6 +79,7 @@ description = args.description
 ... = license_author
 ... = git_author
 ... = git_email
+... = github_username
 ... = os_user
 ... = gen_license_header
 

@@ -4,5 +4,7 @@
 /*venv/
 *~
 .idea/
+.zed/
+.vscode/
 /build/
 

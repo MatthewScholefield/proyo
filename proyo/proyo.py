@@ -1,11 +1,13 @@
+from argparse import ArgumentParser
 import sys
 
 import re
 import traceback
 from enum import Enum
 from os import listdir, chdir, makedirs
-from os.path import join, basename, isdir, isfile, dirname
+from os.path import join, basename, isdir, isfile, dirname, splitext
 from traceback import print_exc, format_exc
+from typing import Any, List, Optional, Set
 
 from proyo.misc import map_tree, arrange_tree, collect_leaves
 
@@ -43,7 +45,7 @@ class Proyo:
         self.ran_files = {}
         self.generated_files = set()
         self.subs = {}
-        self.file_exports = None
+        self.file_exports: Optional[List[str]] = None
 
     def set_target(self, target):
         self.target = target
@@ -87,10 +89,14 @@ class Proyo:
     def get_all_children(self):
         return [self] + sum([i.get_all_children() for i in self.subs.values()], [])
 
-    def get_leaf_vars(self, var_name):
+    def get_leaf_vars(self, var_name: str) -> List[Any]:
         sentinel = object()
         parser_tree = map_tree(lambda p: p.get_var(var_name, sentinel), arrange_tree(self.get_all_children()))
         return [i for i in collect_leaves(dict(parser_tree)) if i is not sentinel]
+
+    @property
+    def leaf_parsers(self) -> List[ArgumentParser]:
+        return self.get_leaf_vars('parser')
 
     def update(self, val=None, **params):
         self._variables.update(val or {}, **params, folder=self.root, proyo=self)
@@ -103,7 +109,7 @@ class Proyo:
     def parse(self):
         for i in sorted(listdir(self.root)):
             filename = join(self.root, i)
-            if isfile(filename) and i.startswith('_') and i.endswith('_'):
+            if isfile(filename) and i.startswith('_.') and i.endswith('._'):
                 try:
                     self._parse_file(filename)
                 except Exception:
@@ -111,7 +117,7 @@ class Proyo:
                         '\n    | ' + i for i in format_exc().strip().split('\n'))))
                     print()
 
-    def only_collect(self, files):
+    def only_collect(self, files: List[str]):
         self.file_exports = files
 
     def run(self, subpath=''):
@@ -143,7 +149,8 @@ class Proyo:
             except UnicodeDecodeError:
                 with open(filename, 'rb') as f:
                     data = f.read()
-                self.files[relative] = data
+                if relative not in self.files:
+                    self.files[relative] = data
             except Exception:
                 print('Failed to generate {}: {}'.format(filename, ''.join(
                     '\n    ' + i for i in format_exc().split('\n'))))
@@ -209,20 +216,31 @@ class Proyo:
         command = re.sub(r'(?<!\\){(.*?)(?<!\\)}', r"''' + str(\1) + '''", command)
         return match.group(1) + "__import__('shutil').which('" + exe + "') and __import__('subprocess').check_call('''" + command + "''', shell=True)"
 
-    def _run_chunk(self, action, chunk, label, phase):
-        import_matches = list(re.finditer(r'^\s*([a-zA-Z_][a-zA-Z_0-9]*)\s*=\s*\.\.\.\s*', chunk, re.MULTILINE))
+    def _extract_system_imports(self, system_import_contents: List[str]) -> Set[str]:
+        """Extracts the "default" set of script imports from script_locals.py"""
+        system_imports = set()
+        for system_import_content in system_import_contents:
+            if system_import_content == '*':
+                from proyo import script_locals
+                system_imports.update({k for k, v in vars(script_locals).items() if v is ...})
+        return {x for x in system_imports if x in self._variables}
+
+    def _run_chunk(self, action, chunk, label, phase: Phase):
+        import_matches = list(re.finditer(r'^\s*([a-zA-Z_][a-zA-Z_0-9]*)(?::\s*[a-zA-Z_][a-zA-Z_0-9]*)?\s*=\s*\.\.\.\s*', chunk, re.MULTILINE))
+        # Match "from proyo.script_locals import *" or "from proyo.script_locals import (\na, b, c)" type statements
+        system_import_matches = list(re.finditer(r'^\s*from\s+proyo\.script_locals\s+import\s*((?:\s*\*\s*|\s*\(\s*[a-zA-Z_][a-zA-Z_0-9]*(?:\s*,\s*[a-zA-Z_][a-zA-Z_0-9]*)*\s*\)|\s*(?:[a-zA-Z_][a-zA-Z_0-9]*\s*,\s*)*[a-zA-Z_][a-zA-Z_0-9]*))\s*', chunk, re.MULTILINE))
         export_matches = list(re.finditer(r'^\s*\.\.\.\s*=\s*([a-zA-Z_][a-zA-Z_0-9]*)\s*', chunk, re.MULTILINE))
-        imports = {i.group(1) for i in import_matches}
-        exports = {i.group(1) for i in export_matches}
+        imports = {str(i.group(1)) for i in import_matches} | self._extract_system_imports(['*'])
+        exports = {str(i.group(1)) for i in export_matches}
 
         not_found = imports - set(self._variables)
         if not_found:
             print('Warning when {} {}: Could not resolve variables: {}'.format(action, label, ', '.join(not_found)))
             return
 
-        spans = [(0, 0)] + sorted([i.span() for i in import_matches + export_matches]) + [(len(chunk), len(chunk))]
+        spans = [(0, 0)] + sorted([i.span() for i in import_matches + system_import_matches + export_matches]) + [(len(chunk), len(chunk))]
         chunk = ''.join(chunk[b:c] for (a, b), (c, d) in zip(spans, spans[1:]))
-        chunk = re.sub('^(\s*)#\s*!(.*)', self._convert_bash_cmd, chunk, flags=re.MULTILINE)
+        chunk = re.sub(r'^(\s*)#\s*!(.*)', self._convert_bash_cmd, chunk, flags=re.MULTILINE)
 
         variables = {i: self._variables[i] for i in imports}
         try:
@@ -255,6 +273,20 @@ class Proyo:
             print('On line', line_number)
         print()
         return
+
+    def _system_imports(self, phase: Phase) -> Set[str]:
+        return {
+            Phase.PARSE: {
+                'proyo',
+                'parser'
+            },
+            Phase.POST_RUN: {
+                'proyo', 'parser', 'args'
+            },
+            Phase.POST_RUN: {
+                'proyo', 'parser', 'args'
+            }
+        }[phase]
 
     def _gen_file(self, content, relative, filename):
         path_vars = re.findall(self.config_val['var_regex'], relative)
@@ -315,4 +347,11 @@ class Proyo:
         if not any(i.strip() for i in lines) and len(lines) <= 1:
             return
         relative = re.sub(self.config_val['var_regex'], lambda m: str(eval(m.group(1), variables)), relative)
-        self.files[relative] = '\n'.join(lines).strip() + '\n'
+        content = '\n'.join(lines).strip() + '\n'
+        if relative in self.files:
+            existing_content = self.files[relative]
+            m = re.match(r'^\s*' + (self.config_val['comment'] or '') + r'\s*\+\+\+', existing_content)
+            if m:
+                self.files[relative] = content + '\n' +  existing_content[m.end():].strip()
+        else:
+            self.files[relative] = content

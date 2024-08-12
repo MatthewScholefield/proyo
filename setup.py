@@ -29,6 +29,7 @@ setup(
     keywords='notify server',
     packages=['proyo'],
     install_requires=[
+        'setuptools'
     ],
     entry_points={
         'console_scripts': [

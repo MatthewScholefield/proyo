@@ -1,9 +1,8 @@
+from proyo.script_locals import *
+
 # ~~~
-proyo = ...
 
 proyo.config(comment='(#|//)')
-
-args = ...
 
 build_system = args.build_system
 cxx_standard = args.cxx_standard

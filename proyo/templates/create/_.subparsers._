@@ -1,12 +1,10 @@
-proyo = ...
+from proyo.script_locals import *
 
-for p in proyo.get_leaf_vars('parser'):
+for p in proyo.leaf_parsers:
     p.add_argument('-l', '--license', choices=['mit', 'apache', 'gplv3', 'none'], default='mit', type=str.lower)
     p.add_argument('--tagline')
     p.add_argument('--description')
 
 # ~~~
-
-proyo = ...
 
 proyo.only_collect(['LICENSE', 'README.md'])

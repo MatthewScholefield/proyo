@@ -1,0 +1,57 @@
+[project]
+name = "{{project_name}}"
+version = "0.1.0"
+description = "{{tagline or 'DESCRIPTION'}}"
+authors = [
+    { name = "{{git_author or 'AUTHOR'}}", email = "{{git_email or 'AUTHOR_EMAIL'}}" },
+]
+dependencies = []
+readme = "README.md"
+requires-python = ">= 3.10"
+license = { text = "MIT" }
+classifiers = [
+    "Development Status :: 3 - Alpha",
+    "Intended Audience :: Developers",
+    "Programming Language :: Python :: 3",
+    "Programming Language :: Python :: 3.10",
+    "Programming Language :: Python :: 3.11",
+    "Programming Language :: Python :: 3.12",
+]
+
+[project.urls]
+Homepage = "https://github.com/{{github_username or 'GITHUB_USER'}}/{{project_name}}"
+
+# ~ if project_type == 'script':
+[project.scripts]
+# ~ if is_package:
+"{{script_name}}" = "{{package_name}}.__main__:main"
+# ~ #
+# ~ else:
+"{{script_name}}" = "{{module_name}}:main"
+# ~ #
+# ~ #
+
+[build-system]
+requires = ["hatchling"]
+build-backend = "hatchling.build"
+
+[tool.rye]
+managed = true
+dev-dependencies = ["pre-commit>=3.7.1", "pytest>=8.2.0"]
+
+[tool.hatch.build.targets.wheel]
+# ~ if is_package:
+packages = ["src/{{package_name}}"]
+# ~ #
+# ~ else:
+include = ["patchpy.py"]
+# ~ #
+
+[tool.ruff]
+target-version = "py310"
+
+[tool.ruff.lint.per-file-ignores]
+"tests/**/*" = ["PLR2004", "S101", "S106"]
+
+[tool.ruff.format]
+quote-style = "single"
