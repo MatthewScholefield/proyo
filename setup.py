@@ -12,7 +12,7 @@ package_data = [
 
 setup(
     name="proyo",
-    version="0.2.2",
+    version="0.2.3",
     description="A tool to broadcast notifications across various interfaces",
     url="https://github.com/matthewscholefield/proyo",
     author="Matthew Scholefield",

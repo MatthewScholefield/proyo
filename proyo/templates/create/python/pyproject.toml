@@ -44,7 +44,7 @@ dev-dependencies = []
 packages = ["src/{{package_name}}"]
 # ~ #
 # ~ else:
-include = ["patchpy.py"]
+include = ["{{module_name}}.py"]
 # ~ #
 
 [tool.ruff]
