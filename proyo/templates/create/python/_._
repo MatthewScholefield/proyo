@@ -40,4 +40,6 @@ if not shutil.which('rye'):
     subprocess.run('curl -sSf https://rye.astral.sh/get | bash', shell=True, check=True)
 
 # !rye sync
+# !rye add --dev pre-commit pytest
 # !rye run pre-commit install
+
