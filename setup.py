@@ -3,16 +3,17 @@ from os.path import join, dirname, abspath
 from setuptools import setup
 
 package_data = [
-    join(root, "*")
+    join(root, pattern)
     for folder in ["templates/", "macros/"]
     for root, dirnames, filenames in os.walk(
         join(dirname(abspath(__file__)), "proyo", folder)
     )
+    for pattern in ("*", ".*")
 ]
 
 setup(
     name="proyo",
-    version="0.2.4",
+    version="0.2.5",
     description="A tool to broadcast notifications across various interfaces",
     url="https://github.com/matthewscholefield/proyo",
     author="Matthew Scholefield",
