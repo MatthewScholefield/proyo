@@ -89,3 +89,6 @@ args = ...
 
 if args.license != 'none':
     print('License: {}'.format({'mit': 'MIT', 'apache': 'Apache-2.0', 'gplv3': 'GPL-3.0-only' }[args.license]))
+
+# !git init
+
