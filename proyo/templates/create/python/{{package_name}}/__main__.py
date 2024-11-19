@@ -7,10 +7,10 @@ from argparse import ArgumentParser
 
 def main():
     parser = ArgumentParser(description='{{description or tagline or ""}}')
-    args = parser.parse_args()
+    parser.parse_args()
 
 
-if __name__ == '__main__':
+if __name__ == "__main__":
     main()
 
 # ~ #
